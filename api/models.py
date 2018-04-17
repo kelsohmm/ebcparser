@@ -13,4 +13,4 @@ class CurrencyPair(models.Model):
             base_currency = base_currency,
             target_currency = target_currency,
             date = date,
-            exchange_rate = exchange_rate)
+            exchange_rate = float(exchange_rate))

@@ -8,7 +8,9 @@ from api.models import CurrencyPair
 
 class ViewTestCase(TestCase):
     rest_responses = [
-        {'id': 1, 'base_currency': 'EUR', 'target_currency': 'SGD', 'exchange_rate': 1.6192, 'date': '2018-04-17'}
+        {'id': 1, 'base_currency': 'EUR', 'target_currency': 'SGD', 'exchange_rate': 1.6192, 'date': '2018-04-17'},
+        {'id': 2, 'base_currency': 'EUR', 'target_currency': 'SGD', 'exchange_rate': 1.45, 'date': '2018-04-16'},
+        {'id': 3, 'base_currency': 'EUR', 'target_currency': 'SGD', 'exchange_rate': 1.0, 'date': '2018-04-15'},
     ]
     currency_pair_strings = [
         ('EUR', 'SGD', '1.6192', '2018-04-17'),
@@ -42,6 +44,7 @@ class ViewTestCase(TestCase):
         self._assertDataEqualToExpected(response.data, self.rest_responses)
 
     def _assertDataEqualToExpected(self, response_data, expected):
+        self.assertEqual(len(response_data), len(expected))
         for response_ordered_dict, expected_dict in zip(response_data, expected):
             self.assertDictEqual(dict(response_ordered_dict), expected_dict)
 

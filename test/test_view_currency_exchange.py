@@ -58,3 +58,39 @@ class SingleCurrencyViewTestCase(ViewTestCaseCore):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self._assertDataEqualToExpected(response.data, self.rest_responses)
 
+class MixedCurrenciesViewTestCase(ViewTestCaseCore):
+    rest_responses_sgd = [
+        {'id': 1, 'base_currency': 'EUR', 'target_currency': 'SGD', 'exchange_rate': 1.6192, 'date': '2018-04-17'},
+    ]
+    rest_responses_aud = [
+        {'id': 2, 'base_currency': 'EUR', 'target_currency': 'AUD', 'exchange_rate': 1.45, 'date': '2018-04-17'},
+    ]
+    rest_responses_pln = [
+        {'id': 3, 'base_currency': 'EUR', 'target_currency': 'PLN', 'exchange_rate': 1.0, 'date': '2018-04-15'},
+        {'id': 4, 'base_currency': 'EUR', 'target_currency': 'PLN', 'exchange_rate': 2.0, 'date': '2018-04-14'},
+    ]
+    currency_pair_strings = [
+        ('EUR', 'SGD', '1.6192', '2018-04-17'),
+        ('EUR', 'AUD', '1.45', '2018-04-17'),
+        ('EUR', 'PLN', '1.0', '2018-04-15'),
+        ('EUR', 'PLN', '2.0', '2018-04-14'),
+    ]
+
+    def test_api_can_get_two_diferent_currencies(self):
+        self._insert_currency_pairs(self.currency_pair_strings)
+
+        response_sgd = self._get_response({'base_currency': 'eur', 'target_currency': 'sgd'})
+        self.assertEqual(response_sgd.status_code, status.HTTP_200_OK)
+        self._assertDataEqualToExpected(response_sgd.data, self.rest_responses_sgd)
+
+        response_aud = self._get_response({'base_currency': 'eur', 'target_currency': 'aud'})
+        self.assertEqual(response_aud.status_code, status.HTTP_200_OK)
+        self._assertDataEqualToExpected(response_aud.data, self.rest_responses_aud)
+
+    def test_api_can_get_two_currency_entries_from_multicurrency_database(self):
+        self._insert_currency_pairs(self.currency_pair_strings)
+
+        response_pln = self._get_response({'base_currency': 'eur', 'target_currency': 'pln'})
+        self.assertEqual(response_pln.status_code, status.HTTP_200_OK)
+        self._assertDataEqualToExpected(response_pln.data, self.rest_responses_pln)
+

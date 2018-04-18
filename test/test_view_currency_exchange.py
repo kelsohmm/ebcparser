@@ -7,37 +7,45 @@ from api.models import CurrencyPair
 
 
 class ViewTestCase(TestCase):
-    rest_data_single = {
-        'id': 1,
-        'base_currency': 'EUR',
-        'target_currency': 'SGD',
-        'date': '2018-04-17',
-        'exchange_rate': 1.6192,
-    }
-    currency_pair_strings = [
-        ('EUR', 'SGD', '1.6192', '2018-04-17')
+    rest_responses = [
+        {'id': 1, 'base_currency': 'EUR', 'target_currency': 'SGD', 'exchange_rate': 1.6192, 'date': '2018-04-17'}
     ]
+    currency_pair_strings = [
+        ('EUR', 'SGD', '1.6192', '2018-04-17'),
+        ('EUR', 'SGD', '1.45', '2018-04-16'),
+        ('EUR', 'SGD', '1.0', '2018-04-15'),
+    ]
+    router_args_sgd = {'base_currency': 'EUR', 'target_currency': 'SGD'}
 
     def setUp(self):
         self.client = APIClient()
 
     def test_api_can_get_a_single_currency_pair(self):
-        self.insert_currency_pairs(self.currency_pair_strings[0:1])
-        router_args = {'base_currency': 'EUR', 'target_currency': 'SGD'}
-        response = self._get_response(router_args)
+        self._insert_currency_pairs(self.currency_pair_strings[0:1])
+        response = self._get_response(self.router_args_sgd)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(dict(response.data[0]), self.rest_data_single)
+        self._assertDataEqualToExpected(response.data, self.rest_responses[0:1])
 
     def test_api_can_get_a_single_currency_pair_when_currencies_lower_case(self):
-        self.insert_currency_pairs(self.currency_pair_strings[0:1])
-        router_args = {'base_currency': 'eur', 'target_currency': 'sgd'}
-        response = self._get_response(router_args)
+        self._insert_currency_pairs(self.currency_pair_strings[0:1])
+        response = self._get_response({'base_currency': 'eur', 'target_currency': 'sgd'})
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(dict(response.data[0]), self.rest_data_single)
+        self._assertDataEqualToExpected(response.data, self.rest_responses[0:1])
 
-    def insert_currency_pairs(self, string_tuples):
+    def test_api_can_get_exchange_rates_for_all_dates(self):
+        self._insert_currency_pairs(self.currency_pair_strings)
+        response = self._get_response(self.router_args_sgd)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self._assertDataEqualToExpected(response.data, self.rest_responses)
+
+    def _assertDataEqualToExpected(self, response_data, expected):
+        for response_ordered_dict, expected_dict in zip(response_data, expected):
+            self.assertDictEqual(dict(response_ordered_dict), expected_dict)
+
+    def _insert_currency_pairs(self, string_tuples):
         for string_tuple in string_tuples:
             CurrencyPair.from_strings_tuple(string_tuple).save()
 

@@ -11,16 +11,20 @@ class ViewTestCase(TestCase):
         self.client = APIClient()
         CurrencyPair.from_strings_tuple(('EUR', 'SGD', '1.6192', '2018-04-17')).save()
         self.rest_data = {
+            'id': 1,
             'base_currency': 'EUR',
             'target_currency': 'SGD',
-            'date': 1.6192,
-            'exchange_rate': '2018-04-17',
+            'date': '2018-04-17',
+            'exchange_rate': 1.6192,
         }
 
-    def test_api_can_get_a_bucketlist(self):
+    def test_api_can_get_a_currency_pair(self):
         response = self.client.get(
             reverse('details',
-                    kwargs={'base_currency': 'EUR'}), format="json")
+                    kwargs={
+                        'base_currency': 'EUR',
+                        'target_currency': 'SGD'
+                    }), format="json")
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertContains(response, self.rest_data)
+        self.assertEqual(dict(response.data[0]), self.rest_data)

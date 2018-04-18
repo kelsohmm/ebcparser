@@ -9,6 +9,7 @@ class DetailsView(generics.ListAPIView):
     def get_queryset(self):
         base_currency = self.kwargs['base_currency']
         target_currency = self.kwargs['target_currency']
+
         return CurrencyPair.objects.filter(
-            base_currency=base_currency,
-            target_currency=target_currency)
+            base_currency=base_currency.upper(),
+            target_currency=target_currency.upper())

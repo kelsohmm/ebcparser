@@ -3,7 +3,7 @@ from rest_framework.urlpatterns import format_suffix_patterns
 from .views import DetailsView
 
 urlpatterns = {
-    url(r'^(?P<base_currency>[A-Z]+)/(?P<target_currency>[A-Z]+)/$',
+    url(r'^(?P<base_currency>[a-zA-Z]{3})/(?P<target_currency>[a-zA-Z]{3})/$',
         DetailsView.as_view(), name="details"),
 }
 
